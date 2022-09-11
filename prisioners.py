@@ -37,8 +37,6 @@ class Prisioners(Boxes):
                                               self.get_box(current_number),
                                               depth - 1, offset)
 
-
-
   def get_box(self, number):
     return self.boxes.get_box(number)
 
@@ -53,13 +51,17 @@ class Prisioners(Boxes):
   def open_sequence_of_boxes(self, start, offset):
     return self.__do_open_sequence_of_boxes([], start, start, self.number // 2, offset)
 
-
   def open_sequence_of_boxes_by_all_the_prisioners(self, offset):
     results = {}
-    for token in self.prisioners:
-      # print("self.open_sequence_of_boxes(token, offset)",self.open_sequence_of_boxes(token, offset))
-      results[token] = self.open_sequence_of_boxes(token, offset)
+    for prisioner in self.prisioners:
+      results[prisioner] = self.open_sequence_of_boxes(prisioner, offset)
     return results
+
+  def statisctics(self):
+    statisctics = {}
+    for offset in range(0, self.number):
+      statisctics[offset] = self.open_sequence_of_boxes_by_all_the_prisioners(offset)
+    return statisctics
 
   def shuffle_up_boxes(self, sequence):
   	for token in sequence:
