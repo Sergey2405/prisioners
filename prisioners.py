@@ -63,19 +63,14 @@ class Prisioners(Boxes):
       statistics[offset] = self.open_sequence_of_boxes_by_all_the_prisioners(offset)
     return statistics
 
-  def trim_statistics(self):
+  def analyze_statistics(self):
     statistics = self.statistics()
-    print("statistics=",statistics)
     for token_offset in statistics:
-      # print("token_stat", token_stat)# int
-      # print("statistics[token_stat]=", statistics[token_stat]) # statistics[token_stat]= {0: ([(6, 0)], [(5, 6), (1, 1), (6, 0)]), 1: ([(1, 1)], [(6, 0), (5, 6), (1, 1)]), 2: ([(7, 2)], [(7, 2)]), 3: ([(0, 3)], [(8, 7), (2, 8), (3, 5), (0, 3)]), 4: ([(4, 4)], [(9, 9), (4, 4)]), 5: ([(3, 5)], [(0, 3), (8, 7), (2, 8), (3, 5)]), 6: ([(5, 6)], [(1, 1), (6, 0), (5, 6)]), 7: ([(8, 7)], [(2, 8), (3, 5), (0, 3), (8, 7)]), 8: ([(2, 8)], [(3, 5), (0, 3), (8, 7), (2, 8)]), 9: ([(9, 9)], [(4, 4), (9, 9)])}
       token_stat = statistics[token_offset]
       token_stat['unreleased'] = 0
       token_stat['released'] = self.number
-      print("token_stat=", token_stat)
       for token_prisioner in token_stat:
         opened_boxes = token_stat[token_prisioner]
-        print("opened_boxes=",opened_boxes)
         if token_prisioner == 'unreleased' or token_prisioner == 'released':
           continue
         if opened_boxes[0] == 'depth':
@@ -84,12 +79,28 @@ class Prisioners(Boxes):
       statistics[token_offset] = token_stat
     return statistics
 
+  def trim_statistics(self):
+    all_statistics = self.analyze_statistics()
+    trimmed_statistics = {}
+    trimmed_statistics['total_released'] = 0
+    trimmed_statistics['total_unreleased'] = 0
+    for token_offset in all_statistics:
+      trimmed_statistics[token_offset] = {}
+      trimmed_statistics[token_offset]['unreleased'] = all_statistics[token_offset]['unreleased']
+      trimmed_statistics[token_offset]['released'] = all_statistics[token_offset]['released']
+      if trimmed_statistics[token_offset]['unreleased'] == 0 and trimmed_statistics[token_offset]['released'] == self.number:
+        trimmed_statistics['total_released'] += 1
+      else:
+        trimmed_statistics['total_unreleased'] += 1
+    return trimmed_statistics
+
+
   def shuffle_up_boxes(self, sequence):
     for token in sequence:
       self.boxes.swap(token[0], token[1])
 
-
-prisioners10 = Prisioners(10)
+number = 20
+prisioners10 = Prisioners(number)
 print("prisioners10",prisioners10)
 print('prisioners10.open_one_box',prisioners10.open_one_box(6))
 prisioners10.shuffle_up_boxes([(3,6), (0,9), (3,5), (6,9), (7,8), (9,0), (7,2)])
@@ -98,4 +109,5 @@ print("After shuffling up boxex. prisioners10.get_boxes",prisioners10.boxes.boxe
 print("prisioners10.boxes.get_box(5)=",prisioners10.boxes.get_box(5))
 print("prisioners10.get_box(5)=",prisioners10.get_box(5))
 print("prisioners10.open_sequence_of_boxes(5, 8)",prisioners10.open_sequence_of_boxes(5, 8))
+print("prisioners10.analyze_statistics()=", prisioners10.analyze_statistics())
 print("prisioners10.trim_statistics()=", prisioners10.trim_statistics())
